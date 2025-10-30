@@ -1,5 +1,5 @@
 {
-  "name": "wandry-analytics-sdk",
+  "name": "@wandry/analytics-sdk",
   "version": "0.0.1",
   "description": "SDK for Wandry Analytics - a powerful analytics platform for shadcn registry.",
   "keywords": [

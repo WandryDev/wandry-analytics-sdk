@@ -21,6 +21,7 @@
     "test": "DEBUG_PRINT_LIMIT=100000 vitest run",
     "build": "export NODE_ENV=production && tsup"
   },
+  "private": false,
   "author": "DimaDevelopment",
   "license": "ISC",
   "devDependencies": {

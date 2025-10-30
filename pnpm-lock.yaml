@@ -11,6 +11,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       msw:
         specifier: ^2.11.3
         version: 2.11.6(@types/node@24.9.2)(typescript@5.9.3)
@@ -23,6 +26,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+      undici-types:
+        specifier: ^7.16.0
+        version: 7.16.0
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.9.2)(msw@2.11.6(@types/node@24.9.2)(typescript@5.9.3))
@@ -813,6 +819,10 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
+
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
 
   duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
@@ -2744,6 +2754,8 @@ snapshots:
   dot-prop@5.3.0:
     dependencies:
       is-obj: 2.0.0
+
+  dotenv@17.2.3: {}
 
   duplexer2@0.1.4:
     dependencies:

@@ -1,6 +1,6 @@
 {
   "name": "@wandry/analytics-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "SDK for Wandry Analytics - a powerful analytics platform for shadcn registry.",
   "keywords": [
     "react",

@@ -21,7 +21,9 @@ export const sendEventToApi = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to send event: ${response}`);
+    throw new Error(
+      `[Wandry Analytics]: Failed to send event: ${JSON.stringify(response)}`
+    );
   }
 };
 

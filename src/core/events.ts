@@ -7,7 +7,7 @@ export async function captureRegistryEvent<T extends Request>(
   request: T,
   type: EventType = "installed"
 ): Promise<void> {
-  if (!isGetRequest(request) && !isRegistryPath(request)) return;
+  if (!isGetRequest(request) || !isRegistryPath(request)) return;
 
   return await sendEventToApi(request, token, type);
 }

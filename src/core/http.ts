@@ -6,29 +6,27 @@ export const sendEventToApi = async (
   token: string,
   type: EventType = "installed"
 ) => {
-  const { apiUrl, endpoint } = getEnv();
+  const { apiUrl } = getEnv();
 
-  const body = makeEventPayload(request, token, type);
+  const body = makeEventPayload(request, type);
 
-  const response = await fetch(`${apiUrl}/${endpoint}`, {
+  const response = await fetch(`${apiUrl}`, {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body,
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to send event: ${response.statusText}`);
+    throw new Error(`Failed to send event: ${response}`);
   }
 };
 
-const makeEventPayload = (
-  request: EventRequest,
-  token: string,
-  type: EventType
-): string => {
+const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const payload = {
     component: new URL(request.url).pathname.replace("/r/", ""),
     type,
-    token,
   };
 
   return JSON.stringify(payload);

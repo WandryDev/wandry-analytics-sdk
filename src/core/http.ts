@@ -6,7 +6,7 @@ export async function sendEventToApi<T extends Request>(
   token: string,
   type: EventType = "installed"
 ) {
-  if (!isResourceFound(request.url)) return;
+  if (!(await isResourceFound(request.url))) return;
 
   const { apiUrl } = getEnv();
 
@@ -29,10 +29,14 @@ export async function sendEventToApi<T extends Request>(
   }
 }
 
-const isResourceFound = (url: string): Promise<boolean> => {
-  return fetch(url)
-    .then((res) => res.ok)
-    .catch(() => false);
+const isResourceFound = async (url: string): Promise<boolean> => {
+  console.log(`[Wandry Analytics]: Checking resource at ${url}`);
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
 };
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {

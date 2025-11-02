@@ -26,7 +26,7 @@ const makeEventPayload = (
   type: EventType
 ): string => {
   const payload = {
-    domain: new URL(request.url).hostname,
+    component: new URL(request.url).pathname.replace("/r/", ""),
     type,
     token,
   };

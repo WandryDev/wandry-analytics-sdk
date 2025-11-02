@@ -1,10 +1,13 @@
 import { EventRequest, EventType } from "../types";
 import { sendEventToApi } from "./http";
+import { isRegistryPath } from "./utils";
 
-export const sendEvent = async (
-  request: EventRequest,
+export const captureRegistryEvent = async (
   token: string,
+  request: EventRequest,
   type: EventType = "installed"
 ): Promise<void> => {
-  await sendEventToApi(request, token, type);
+  if (!isRegistryPath(request)) return;
+
+  return await sendEventToApi(request, token, type);
 };

@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 // dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 export const getEnv = () => {
-  const apiUrl = "http://localhost:3000"; //process.env.API_URL;
-  const endpoint = "/events";
+  const apiUrl = "http://wandry-analytics.test/api/v1"; //process.env.API_URL;
+  const endpoint = "/registry/install";
 
   if (!apiUrl) throw new Error("Api url is not provided");
 

@@ -1,11 +1,11 @@
 import { EventRequest, EventType } from "../types";
 import { getEnv } from "./config";
 
-export const sendEventToApi = async (
-  request: EventRequest,
+export async function sendEventToApi<T extends Request>(
+  request: T,
   token: string,
   type: EventType = "installed"
-) => {
+) {
   const { apiUrl } = getEnv();
 
   const body = makeEventPayload(request, type);
@@ -25,7 +25,7 @@ export const sendEventToApi = async (
       `[Wandry Analytics]: Failed to send event: ${JSON.stringify(response)}`
     );
   }
-};
+}
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const payload = {

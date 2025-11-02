@@ -1,2 +1,4 @@
 export type EventType = "installed";
-export type EventRequest<T extends Request = Request> = T;
+export type EventRequest<
+  T extends Omit<Request, "duplex"> = Omit<Request, "duplex">
+> = T;

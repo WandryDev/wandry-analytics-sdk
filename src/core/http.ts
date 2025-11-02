@@ -10,9 +10,11 @@ export const sendEventToApi = async (
 
   const body = makeEventPayload(request, type);
 
-  const response = await fetch(`${apiUrl}`, {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
       Authorization: `Bearer ${token}`,
     },
     body,
@@ -25,7 +27,9 @@ export const sendEventToApi = async (
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const payload = {
-    component: new URL(request.url).pathname.replace("/r/", ""),
+    component: new URL(request.url).pathname
+      .replace("/r/", "")
+      .replace(".json", ""),
     type,
   };
 

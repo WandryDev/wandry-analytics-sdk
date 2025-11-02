@@ -6,7 +6,8 @@ export async function sendEventToApi<T extends Request>(
   token: string,
   type: EventType = "installed"
 ) {
-  if (!(await isResourceFound(request.url))) return;
+  // TODO: Need to handle 404s and not send events for them
+  // if (!(await isResourceFound(request.url))) return;
 
   const { apiUrl } = getEnv();
 

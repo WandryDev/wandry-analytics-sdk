@@ -6,6 +6,8 @@ export async function sendEventToApi<T extends Request>(
   token: string,
   type: EventType = "installed"
 ) {
+  if (!isResourceFound(request.url)) return;
+
   const { apiUrl } = getEnv();
 
   const body = makeEventPayload(request, type);
@@ -26,6 +28,12 @@ export async function sendEventToApi<T extends Request>(
     );
   }
 }
+
+const isResourceFound = (url: string): Promise<boolean> => {
+  return fetch(url)
+    .then((res) => res.ok)
+    .catch(() => false);
+};
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const payload = {

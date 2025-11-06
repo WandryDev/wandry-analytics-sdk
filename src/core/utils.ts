@@ -17,7 +17,7 @@ export const isValidRegistryComponent = (request: EventRequest): boolean => {
 
   if (!pathname.endsWith(".json")) return false;
 
-  if (pathname.includes("{name}")) return false;
+  if (pathname.includes(encodeURIComponent("{name}"))) return false;
 
   return true;
 };

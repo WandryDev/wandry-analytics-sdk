@@ -12,7 +12,7 @@ export const isSDKRequest = (request: EventRequest): boolean =>
 export const isValidRegistryComponent = (request: EventRequest): boolean => {
   const pathname = new URL(request.url).pathname;
 
-  if (!isSDKRequest(request)) return false;
+  if (isSDKRequest(request)) return false;
 
   if (!isGetRequest(request)) return false;
 

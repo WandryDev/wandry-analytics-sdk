@@ -1,6 +1,6 @@
 import { EventRequest } from "../types";
 
-const REGISTRY_PATH = /^\/r(?:\/.*)?$/;
+const REGISTRY_PATH = /^\/r(?:\/[A-Za-z0-9_-]+)*\/?$/;
 
 export const isGetRequest = (request: EventRequest): boolean =>
   request.method.toUpperCase() === "GET";

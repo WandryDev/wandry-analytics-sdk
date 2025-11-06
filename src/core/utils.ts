@@ -6,6 +6,9 @@ export const isGetRequest = (request: EventRequest): boolean =>
   request.method.toUpperCase() === "GET";
 
 export const isValidRegistryComponent = (request: EventRequest): boolean => {
+  console.log(
+    `[Wandry Analytics]: Validating request ${request.method} ${request.url}`
+  );
   const pathname = new URL(request.url).pathname;
 
   if (!isGetRequest(request)) return false;

@@ -1,5 +1,5 @@
 import { EventType } from "../types";
-import { sendEventToApi } from "./http";
+import { ensureResourceExist, sendEventToApi } from "./http";
 import { isValidRegistryComponent } from "./utils";
 
 export async function captureRegistryEvent<T extends Request>(
@@ -8,6 +8,10 @@ export async function captureRegistryEvent<T extends Request>(
   type: EventType = "installed"
 ): Promise<void> {
   if (!isValidRegistryComponent(request)) return;
+
+  const isResourceExist = await ensureResourceExist(request.url);
+
+  if (!isResourceExist) return;
 
   return await sendEventToApi(request, token, type);
 }

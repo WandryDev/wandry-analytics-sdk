@@ -1,15 +1,18 @@
 import { EventRequest } from "../types";
+import { getEnv } from "./config";
 
-const REGISTRY_PATH = /^\/r(?:\/[A-Za-z0-9_.-]+)*\/?$/;
+const { registryPegexp, sdkHeader } = getEnv();
 
 export const isGetRequest = (request: EventRequest): boolean =>
   request.method.toUpperCase() === "GET";
 
+export const isSDKRequest = (request: EventRequest): boolean =>
+  request.headers.get(sdkHeader) === "true";
+
 export const isValidRegistryComponent = (request: EventRequest): boolean => {
-  console.log(
-    `[Wandry Analytics]: Validating request ${request.method} ${request.url}`
-  );
   const pathname = new URL(request.url).pathname;
+
+  if (!isSDKRequest(request)) return false;
 
   if (!isGetRequest(request)) return false;
 
@@ -23,4 +26,4 @@ export const isValidRegistryComponent = (request: EventRequest): boolean => {
 };
 
 export const isRegistryPath = (request: EventRequest): boolean =>
-  REGISTRY_PATH.test(new URL(request.url).pathname);
+  registryPegexp.test(new URL(request.url).pathname);

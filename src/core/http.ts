@@ -37,3 +37,20 @@ const makeEventPayload = (request: EventRequest, type: EventType): string => {
 
   return JSON.stringify(payload);
 };
+
+export const ensureResourceExist = async (url: string): Promise<boolean> => {
+  const { sdkHeader } = getEnv();
+
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      headers: {
+        [sdkHeader]: "true",
+      },
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};

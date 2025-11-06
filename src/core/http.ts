@@ -6,9 +6,6 @@ export async function sendEventToApi<T extends Request>(
   token: string,
   type: EventType = "installed"
 ) {
-  // TODO: Need to handle 404s and not send events for them
-  // if (!(await isResourceFound(request.url))) return;
-
   const { apiUrl } = getEnv();
 
   const body = makeEventPayload(request, type);
@@ -29,16 +26,6 @@ export async function sendEventToApi<T extends Request>(
     );
   }
 }
-
-const isResourceFound = async (url: string): Promise<boolean> => {
-  console.log(`[Wandry Analytics]: Checking resource at ${url}`);
-  try {
-    const res = await fetch(url, { method: "HEAD" });
-    return res.ok;
-  } catch {
-    return false;
-  }
-};
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const payload = {

@@ -7,6 +7,10 @@ export async function captureRegistryEvent<T extends Request>(
   token: string,
   type: EventType = "installed"
 ): Promise<void> {
+  console.log(
+    `[Wandry Analytics]: Capturing event for ${request.url} ${request.method} ${request.headers}`
+  );
+
   if (!isValidRegistryComponent(request)) return;
 
   const isResourceExist = await ensureResourceExist(request.url);

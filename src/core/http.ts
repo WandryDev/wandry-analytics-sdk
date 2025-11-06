@@ -49,8 +49,15 @@ export const ensureResourceExist = async (url: string): Promise<boolean> => {
       },
     });
 
+    console.log(
+      `[Wandry Analytics]: Resource check for ${url} returned ${response.status}`
+    );
+
     return response.ok;
   } catch (error) {
+    console.error(
+      `[Wandry Analytics]: Error checking resource ${url}: ${error}`
+    );
     return false;
   }
 };

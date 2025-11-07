@@ -28,10 +28,12 @@ export async function sendEventToApi<T extends Request>(
 }
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
+  const ip = getClientIp(request);
   const payload = {
     component: new URL(request.url).pathname
       .replace("/r/", "")
       .replace(".json", ""),
+    ip,
     type,
   };
 
@@ -53,3 +55,19 @@ export const ensureResourceExist = async (url: string): Promise<boolean> => {
     return false;
   }
 };
+
+export function getClientIp<T extends Request>(request: T): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
+
+  const ipFromForwardedFor = forwardedFor?.split(",")[0]?.trim();
+
+  const ip =
+    ipFromForwardedFor ||
+    realIp ||
+    // @ts-ignore
+    request.ip ||
+    "unknown";
+
+  return ip;
+}

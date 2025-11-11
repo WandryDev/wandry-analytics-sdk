@@ -1,5 +1,6 @@
 import { EventRequest, EventType } from "../types";
 import { getEnv } from "./config";
+import { getComponentNameFromUrl } from "./utils";
 
 export async function sendEventToApi<T extends Request>(
   request: T,
@@ -29,11 +30,10 @@ export async function sendEventToApi<T extends Request>(
 
 const makeEventPayload = (request: EventRequest, type: EventType): string => {
   const ip = getClientIp(request);
+
   const payload = {
-    component: new URL(request.url).pathname
-      .replace("/r/", "")
-      .replace(".json", ""),
-    ip,
+    component: getComponentNameFromUrl(request),
+    ip: anonymizeIp(ip),
     type,
   };
 
@@ -71,3 +71,10 @@ export function getClientIp<T extends Request>(request: T): string {
 
   return ip;
 }
+
+export const anonymizeIp = (ip: string): string => {
+  const octets = ip.split(".");
+
+  octets[3] = "0";
+  return octets.join(".");
+};

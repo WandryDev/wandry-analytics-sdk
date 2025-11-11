@@ -35,3 +35,7 @@ export const isNodeFetchAgent = (request: EventRequest): boolean => {
 
   return userAgent.includes("node-fetch");
 };
+
+export const getComponentNameFromUrl = (request: EventRequest): string => {
+  return new URL(request.url).pathname.replace("/r/", "").replace(".json", "");
+};

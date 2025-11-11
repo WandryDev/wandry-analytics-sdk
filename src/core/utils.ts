@@ -12,6 +12,8 @@ export const isSDKRequest = (request: EventRequest): boolean =>
 export const isValidRegistryComponent = (request: EventRequest): boolean => {
   const pathname = new URL(request.url).pathname;
 
+  if (!isNodeFetchAgent(request)) return false;
+
   if (isSDKRequest(request)) return false;
 
   if (!isGetRequest(request)) return false;
@@ -27,3 +29,9 @@ export const isValidRegistryComponent = (request: EventRequest): boolean => {
 
 export const isRegistryPath = (request: EventRequest): boolean =>
   registryPegexp.test(new URL(request.url).pathname);
+
+export const isNodeFetchAgent = (request: EventRequest): boolean => {
+  const userAgent = request.headers.get("user-agent") || "";
+
+  return userAgent.includes("node-fetch");
+};

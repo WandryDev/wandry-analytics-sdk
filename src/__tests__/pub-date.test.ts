@@ -17,6 +17,7 @@ import { createMockFileStat, resetFsStatMock } from "./__mocks__/fs.mock";
 
 // Import getPubDate after mocks are set up
 import { getPubDate } from "../rss/pub-date";
+import path from "path";
 
 describe("pub-date.ts", () => {
   beforeEach(() => {
@@ -165,7 +166,9 @@ describe("pub-date.ts", () => {
 
         await getPubDate(mockRegistryItem, mockFileMtimeRssOptions);
 
-        expect(mockStat).toHaveBeenCalledWith(mockRegistryItem.files[0].path);
+        expect(mockStat).toHaveBeenCalledWith(
+          path.resolve(process.cwd(), mockRegistryItem.files[0].path)
+        );
       });
 
       it("should return date in UTC string format", async () => {

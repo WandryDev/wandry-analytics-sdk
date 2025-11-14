@@ -78,3 +78,19 @@ export const anonymizeIp = (ip: string): string => {
   octets[3] = "0";
   return octets.join(".");
 };
+
+export const readRegistry = async (path: string) => {
+  const { sdkHeader } = getEnv();
+
+  const res = await fetch(path, {
+    headers: { "Cache-Control": "no-cache", [sdkHeader]: "true" },
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch registry from ${path}: ${await res.text()}`
+    );
+  }
+
+  return res.json();
+};

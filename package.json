@@ -28,6 +28,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.9.2",
     "dotenv": "^17.2.3",
+    "jsdom": "^27.2.0",
     "msw": "^2.11.3",
     "semantic-release": "^24.2.7",
     "tsup": "^8.5.0",

@@ -6,6 +6,7 @@ import {
   PubDateStatagy,
   PubDateStatagyFn,
 } from "./types";
+import path from "path";
 
 const isDateNowStrategy = (strategy: PubDateStatagy): strategy is "dateNow" => {
   return strategy === "dateNow";
@@ -77,7 +78,9 @@ async function getGithubLastEdit({
 }
 
 const getFileMtime = async (component: any) => {
-  const stat = await fs.stat(component.files[0].path);
+  const stat = await fs.stat(
+    path.resolve(process.cwd(), component.files[0].path)
+  );
   return stat.mtime;
 };
 

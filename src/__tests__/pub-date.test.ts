@@ -61,8 +61,7 @@ describe("pub-date.ts", () => {
 
         const result = await getPubDate(mockRegistryItem, mockGithubRssOptions);
 
-        const resultDate =
-          result instanceof Date ? result : new Date(result as string);
+        const resultDate = new Date(result);
         expect(resultDate.getTime()).toBe(testDate.getTime());
       });
 
@@ -98,13 +97,20 @@ describe("pub-date.ts", () => {
         expect(headers.get("authorization")).toBe("ghp_test_token_123");
       });
 
-      it("should return 'Invalid Date' if the commits array is empty", async () => {
+      it("should fallback to current date if the commits array is empty", async () => {
         setupGithubFetchMock([]);
 
+        const beforeCall = Date.now();
         const result = await getPubDate(mockRegistryItem, mockGithubRssOptions);
+        const afterCall = Date.now();
 
-        // When the commits array is empty, getGithubLastEdit returns null, which becomes "Invalid Date"
-        expect(result).toBe("Invalid Date");
+        // When the commits array is empty, getGithubLastEdit returns null, which falls back to dateNow
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+
+        const resultDate = new Date(result);
+        expect(resultDate.getTime()).toBeGreaterThanOrEqual(beforeCall - 1000);
+        expect(resultDate.getTime()).toBeLessThanOrEqual(afterCall + 1000);
       });
     });
 
@@ -185,7 +191,7 @@ describe("pub-date.ts", () => {
       });
     });
 
-    describe("Custom function strategy (PubDateStatagyFn) tests", () => {
+    describe("Custom function strategy (PubDateStrategyFn) tests", () => {
       it("should call custom function and return its result", async () => {
         const result = await getPubDate(
           mockRegistryItem,
@@ -207,7 +213,7 @@ describe("pub-date.ts", () => {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: customFn,
+            pubDateStrategy: customFn,
           },
         };
 
@@ -225,7 +231,7 @@ describe("pub-date.ts", () => {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: asyncCustomFn,
+            pubDateStrategy: asyncCustomFn,
           },
         };
 
@@ -249,32 +255,47 @@ describe("pub-date.ts", () => {
     });
 
     describe("Error throwing check for invalid strategy", () => {
-      it("should return 'Invalid Date' for invalid string strategy", async () => {
+      it("should fallback to dateNow for invalid string strategy", async () => {
         const invalidOptions: GenerateRssOptions = {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: "invalidStrategy" as any,
+            pubDateStrategy: "invalidStrategy" as any,
           },
         };
 
+        const beforeCall = Date.now();
         const result = await getPubDate(mockRegistryItem, invalidOptions);
+        const afterCall = Date.now();
 
-        expect(result).toBe("Invalid Date");
+        // Invalid strategy falls back to dateNow
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+
+        const resultDate = new Date(result);
+        expect(resultDate.getTime()).toBeGreaterThanOrEqual(beforeCall - 1000);
+        expect(resultDate.getTime()).toBeLessThanOrEqual(afterCall + 1000);
       });
 
-      it("should return Date object for null strategy", async () => {
+      it("should use dateNow for null strategy", async () => {
         const invalidOptions: GenerateRssOptions = {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: null as any,
+            pubDateStrategy: null as any,
           },
         };
 
+        const beforeCall = Date.now();
         const result = await getPubDate(mockRegistryItem, invalidOptions);
+        const afterCall = Date.now();
 
-        expect(result instanceof Date).toBe(true);
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+
+        const resultDate = new Date(result);
+        expect(resultDate.getTime()).toBeGreaterThanOrEqual(beforeCall - 1000);
+        expect(resultDate.getTime()).toBeLessThanOrEqual(afterCall + 1000);
       });
 
       it("should use dateNow when strategy is undefined (if rss is defined)", async () => {
@@ -282,24 +303,30 @@ describe("pub-date.ts", () => {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: undefined as any,
+            pubDateStrategy: undefined as any,
           },
         };
 
+        const beforeCall = Date.now();
         const result = await getPubDate(mockRegistryItem, invalidOptions);
+        const afterCall = Date.now();
 
-        expect(result instanceof Date).toBe(true);
-        expect((result as Date).toString()).not.toBe("Invalid Date");
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+
+        const resultDate = new Date(result);
+        expect(resultDate.getTime()).toBeGreaterThanOrEqual(beforeCall - 1000);
+        expect(resultDate.getTime()).toBeLessThanOrEqual(afterCall + 1000);
       });
     });
 
-    describe("Behavior check when pubDateStatagy is not specified (default dateNow)", () => {
-      it("should use dateNow when pubDateStatagy is not specified", async () => {
+    describe("Behavior check when pubDateStrategy is not specified (default dateNow)", () => {
+      it("should use dateNow when pubDateStrategy is not specified", async () => {
         const optionsWithoutStrategy: GenerateRssOptions = {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: undefined,
+            pubDateStrategy: undefined,
           },
         };
 
@@ -310,14 +337,15 @@ describe("pub-date.ts", () => {
         );
         const afterCall = Date.now();
 
-        expect(result instanceof Date).toBe(true);
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
 
-        const resultTime = (result as Date).getTime();
+        const resultTime = new Date(result).getTime();
         expect(resultTime).toBeGreaterThanOrEqual(beforeCall - 1000);
         expect(resultTime).toBeLessThanOrEqual(afterCall + 1000);
       });
 
-      it("should use dateNow when rss.pubDateStatagy is not defined", async () => {
+      it("should use dateNow when rss.pubDateStrategy is not defined", async () => {
         const optionsWithoutPubDate: GenerateRssOptions = {
           baseUrl: "https://example.com",
           rss: {
@@ -332,8 +360,9 @@ describe("pub-date.ts", () => {
           optionsWithoutPubDate
         );
 
-        expect(result instanceof Date).toBe(true);
-        expect((result as Date).toString()).not.toBe("Invalid Date");
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+        expect(new Date(result).toString()).not.toBe("Invalid Date");
       });
 
       it("should use dateNow when rss is not defined", async () => {
@@ -343,11 +372,12 @@ describe("pub-date.ts", () => {
 
         const result = await getPubDate(mockRegistryItem, optionsWithoutRss);
 
-        expect(result instanceof Date).toBe(true);
-        expect((result as Date).toString()).not.toBe("Invalid Date");
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
+        expect(new Date(result).toString()).not.toBe("Invalid Date");
       });
 
-      it("should return Date object by default", async () => {
+      it("should return UTC string by default", async () => {
         const optionsWithoutStrategy: GenerateRssOptions = {
           baseUrl: "https://example.com",
         };
@@ -357,7 +387,8 @@ describe("pub-date.ts", () => {
           optionsWithoutStrategy
         );
 
-        expect(result instanceof Date).toBe(true);
+        expect(typeof result).toBe("string");
+        expect(result).toMatch(/GMT$/);
       });
     });
   });

@@ -1,10 +1,10 @@
 import { getPubDate } from "./pub-date";
-import { GenerateRssOptions } from "./types";
+import { GenerateRssOptions, Registry, RegistryItem } from "./types";
 import { getConfigWithDefaults } from "./config";
 import { readRegistry } from "../core/http";
 
 const generateRegistryItemXml = async (
-  item: any,
+  item: RegistryItem,
   options: GenerateRssOptions
 ) => {
   const pubDate = await getPubDate(item, options);
@@ -22,11 +22,11 @@ const generateRssXml = (items: string[], config: GenerateRssOptions) => {
   return `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${config.rss?.title}</title>
-    <link>${config.rss?.link}</link>
-    <description>${config.rss?.description}</description>
+    <title>${config.rss?.title ?? ""}</title>
+    <link>${config.rss?.link ?? ""}</link>
+    <description>${config.rss?.description ?? ""}</description>
     <atom:link href="${config.baseUrl}${
-    config.rss?.endpoint
+    config.rss?.endpoint ?? ""
   }" rel="self" type="application/rss+xml" />
   ${items.join("")}
   </channel>
@@ -34,15 +34,14 @@ const generateRssXml = (items: string[], config: GenerateRssOptions) => {
 `;
 };
 
-export async function generateRegistryRssFeed<T extends Request>(
-  request: T,
-  options?: GenerateRssOptions
+export async function generateRegistryRssFeed(
+  options: GenerateRssOptions
 ): Promise<string | null> {
-  const config = getConfigWithDefaults(request, options);
+  const config = getConfigWithDefaults(options);
 
   try {
-    const registry = await readRegistry(
-      `${config.baseUrl}/${config.registry!.path}`
+    const registry: Registry = await readRegistry(
+      `${config.baseUrl}/${config.registry?.path ?? "r/registry.json"}`
     );
 
     if (!registry.items || registry.items.length === 0) {
@@ -50,7 +49,7 @@ export async function generateRegistryRssFeed<T extends Request>(
     }
 
     const items = await Promise.all(
-      registry.items.map(async (item: any) => {
+      registry.items.map(async (item: RegistryItem) => {
         return await generateRegistryItemXml(item, config);
       })
     );

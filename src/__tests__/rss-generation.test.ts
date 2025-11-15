@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GenerateRssOptions } from "../rss/types";
 import {
-  mockRequest,
   mockRssOptions,
   mockGithubRssOptions,
 } from "./fixtures/rss-options.fixtures";
@@ -51,7 +50,6 @@ describe("RSS Generation Functions", () => {
   describe("generateRegistryItemXml()", () => {
     describe("Generate correct XML for a single item", () => {
       it("should generate valid XML structure for an item", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://example.com",
@@ -61,7 +59,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).not.toBeNull();
         expect(result).toContain("<item>");
@@ -74,7 +72,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should include all required fields in the item", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://example.com",
@@ -84,7 +81,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
         expect(items).toHaveLength(1);
@@ -93,7 +90,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should generate valid item structure for each registry item", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://example.com",
@@ -101,7 +97,7 @@ describe("RSS Generation Functions", () => {
 
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(validateRssItem(result!, 0)).toBe(true);
         expect(validateRssItem(result!, 1)).toBe(true);
@@ -111,7 +107,6 @@ describe("RSS Generation Functions", () => {
 
     describe("Proper escaping of special characters in title/description", () => {
       it("should handle special characters in title", async () => {
-        const request = mockRequest("https://example.com/test");
         const specialItem = {
           ...mockRegistryItem,
           title: "Alert & Dialog Component",
@@ -121,14 +116,13 @@ describe("RSS Generation Functions", () => {
           items: [specialItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         expect(result).toContain("Alert & Dialog Component");
       });
 
       it("should handle special characters in description", async () => {
-        const request = mockRequest("https://example.com/test");
         const specialItem = {
           ...mockRegistryItem,
           description: "Uses <dialog> element & <form> tags",
@@ -138,14 +132,13 @@ describe("RSS Generation Functions", () => {
           items: [specialItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         expect(result).toContain("Uses <dialog> element & <form> tags");
       });
 
       it("should handle quotes in title and description", async () => {
-        const request = mockRequest("https://example.com/test");
         const specialItem = {
           ...mockRegistryItem,
           title: 'Component with "quotes"',
@@ -156,7 +149,7 @@ describe("RSS Generation Functions", () => {
           items: [specialItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         expect(result).toContain('Component with "quotes"');
@@ -164,7 +157,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should handle multiple special characters together", async () => {
-        const request = mockRequest("https://example.com/test");
         const specialItem = {
           ...mockRegistryItem,
           title: "Alert & Dialog <Component>",
@@ -175,7 +167,7 @@ describe("RSS Generation Functions", () => {
           items: [specialItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         const items = extractRssItems(result!);
@@ -188,7 +180,6 @@ describe("RSS Generation Functions", () => {
 
     describe("Correct substitution of baseUrl and name in link/guid", () => {
       it("should correctly form link with baseUrl and item name", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://mysite.com",
@@ -198,7 +189,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
         expect(items[0].link).toBe(
@@ -207,7 +198,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should correctly form guid with baseUrl and item name", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://mysite.com",
@@ -217,7 +207,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
         expect(items[0].guid).toBe(
@@ -226,7 +216,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should use different baseUrl for different items", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://production.com",
@@ -234,7 +223,7 @@ describe("RSS Generation Functions", () => {
 
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
         expect(items[0].link).toBe("https://production.com/button");
@@ -243,7 +232,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should handle baseUrl without trailing slash", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://example.com",
@@ -253,7 +241,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
         expect(items[0].link).toBe("https://example.com/button");
@@ -262,7 +250,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should handle item names with special characters", async () => {
-        const request = mockRequest("https://example.com/test");
         const specialItem = {
           ...mockRegistryItem,
           name: "alert-dialog",
@@ -272,7 +259,7 @@ describe("RSS Generation Functions", () => {
           items: [specialItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(items[0].link).toContain("alert-dialog");
@@ -282,33 +269,28 @@ describe("RSS Generation Functions", () => {
 
     describe("Verify pubDate format", () => {
       it("should generate valid RFC 822 date format", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(validatePubDateFormat(items[0].pubDate)).toBe(true);
       });
 
       it("should include GMT in pubDate", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(items[0].pubDate).toContain("GMT");
       });
 
       it("should generate different dates with githubLastEdit strategy", async () => {
-        const request = mockRequest("https://example.com/test");
         const testDate = new Date("2024-03-15T10:30:00Z");
         const mockCommit = createMockGithubCommit(testDate);
         setupGithubFetchMock([mockCommit]);
@@ -318,7 +300,6 @@ describe("RSS Generation Functions", () => {
         });
 
         const result = await generateRegistryRssFeed(
-          request,
           mockGithubRssOptions
         );
 
@@ -328,11 +309,9 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should generate parseable dates", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         items.forEach((item) => {
@@ -346,37 +325,31 @@ describe("RSS Generation Functions", () => {
   describe("generateRssXml()", () => {
     describe("Generate correct RSS XML with header", () => {
       it("should include XML declaration", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toContain('<?xml version="1.0" encoding="UTF-8"');
       });
 
       it("should include RSS version 2.0", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(hasAttribute(result!, "rss", "version", "2.0")).toBe(true);
       });
 
       it("should include channel with title, link, and description", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toContain("<channel>");
         expect(result).toContain("</channel>");
@@ -385,7 +358,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should use custom RSS options in header", async () => {
-        const request = mockRequest("https://example.com/test");
         const customOptions: GenerateRssOptions = {
           baseUrl: "https://custom.com",
           rss: {
@@ -400,7 +372,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, customOptions);
+        const result = await generateRegistryRssFeed(customOptions);
 
         expect(result).toContain("Custom Registry Title");
         expect(result).toContain("Custom Description");
@@ -410,32 +382,30 @@ describe("RSS Generation Functions", () => {
 
     describe("Insert all items elements into channel", () => {
       it("should include all items from registry", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(countTags(result!, "item")).toBe(mockRegistry.items.length);
       });
 
       it("should include each item inside channel", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
-        const channelContent = result!.split("<channel>")[1].split("</channel>")[0];
-        expect(countTags(channelContent, "item")).toBe(mockRegistry.items.length);
+        const channelContent = result!
+          .split("<channel>")[1]
+          .split("</channel>")[0];
+        expect(countTags(channelContent, "item")).toBe(
+          mockRegistry.items.length
+        );
       });
 
       it("should maintain order of items", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(items[0].title).toBe("Button Component");
@@ -444,23 +414,19 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should handle single item correctly", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(countTags(result!, "item")).toBe(1);
       });
 
       it("should concatenate items without extra whitespace", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractTagContent(result!, "item");
         expect(items.length).toBe(3);
@@ -472,25 +438,21 @@ describe("RSS Generation Functions", () => {
 
     describe("Verify atom namespace correctness", () => {
       it("should include atom namespace declaration", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toContain('xmlns:atom="http://www.w3.org/2005/Atom"');
       });
 
       it("should declare atom namespace in rss tag", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const rssTagMatch = result!.match(/<rss[^>]*>/);
         expect(rssTagMatch).not.toBeNull();
@@ -498,13 +460,11 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should include atom namespace with correct URL", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(hasAttribute(result!, "rss", "xmlns:atom")).toBe(true);
         expect(result).toContain("http://www.w3.org/2005/Atom");
@@ -513,13 +473,11 @@ describe("RSS Generation Functions", () => {
 
     describe("Verify atom:link formation with endpoint", () => {
       it("should include atom:link with self rel", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toContain("<atom:link");
         expect(result).toContain('rel="self"');
@@ -527,7 +485,6 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should form atom:link href with baseUrl and endpoint", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           baseUrl: "https://mysite.com",
@@ -541,13 +498,12 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).toContain('href="https://mysite.com/feed.xml"');
       });
 
       it("should use custom endpoint in atom:link", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           baseUrl: "https://example.com",
           rss: {
@@ -562,21 +518,21 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).toContain("https://example.com/custom-rss.xml");
       });
 
       it("should include atom:link inside channel", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
-        const channelContent = result!.split("<channel>")[1].split("</channel>")[0];
+        const channelContent = result!
+          .split("<channel>")[1]
+          .split("</channel>")[0];
         expect(channelContent).toContain("<atom:link");
       });
     });
@@ -585,22 +541,18 @@ describe("RSS Generation Functions", () => {
   describe("generateRegistryRssFeed()", () => {
     describe("Successful RSS generation with valid registry", () => {
       it("should generate complete RSS feed", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         expect(validateRssFeed(result!)).toBe(true);
       });
 
       it("should generate well-formed XML", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         // Check basic XML structure instead of full well-formedness
         // (atom:link is self-closing which the helper might not handle perfectly)
@@ -613,18 +565,15 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should include all registry items in feed", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(items.length).toBe(3);
       });
 
       it("should call readRegistry with correct path", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           baseUrl: "https://example.com",
           registry: {
@@ -634,7 +583,7 @@ describe("RSS Generation Functions", () => {
 
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        await generateRegistryRssFeed(request, options);
+        await generateRegistryRssFeed(options);
 
         expect(readRegistry).toHaveBeenCalledWith(
           "https://example.com/custom/registry.json"
@@ -644,21 +593,17 @@ describe("RSS Generation Functions", () => {
 
     describe("Return null when registry.items is empty", () => {
       it("should return null for empty items array", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockEmptyRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
 
       it("should not generate XML for empty registry", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({ items: [] });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
@@ -666,21 +611,17 @@ describe("RSS Generation Functions", () => {
 
     describe("Return null when registry.items is missing", () => {
       it("should return null when items property is undefined", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistryWithoutItems);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
 
       it("should return null when registry has no items key", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({ name: "test-registry" });
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
@@ -688,46 +629,41 @@ describe("RSS Generation Functions", () => {
 
     describe("Handle registry read errors (catch block)", () => {
       it("should return null on registry fetch error", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockRejectedValue(new Error("Network error"));
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
 
       it("should return null on 404 error", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockRejectedValue(
           new Error("Failed to fetch registry: 404 Not Found")
         );
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
 
       it("should return null on invalid JSON", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockRejectedValue(
           new Error("Invalid JSON response")
         );
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).toBeNull();
       });
 
       it("should log error to console", async () => {
-        const request = mockRequest("https://example.com/test");
-        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        const consoleErrorSpy = vi
+          .spyOn(console, "error")
+          .mockImplementation(() => {});
 
         (readRegistry as any).mockRejectedValue(new Error("Test error"));
 
-        await generateRegistryRssFeed(request, mockRssOptions);
+        await generateRegistryRssFeed(mockRssOptions);
 
         expect(consoleErrorSpy).toHaveBeenCalled();
         expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -741,18 +677,15 @@ describe("RSS Generation Functions", () => {
 
     describe("Verify parallel processing of all items via Promise.all", () => {
       it("should process all items in parallel", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         expect(result).not.toBeNull();
         expect(countTags(result!, "item")).toBe(3);
       });
 
       it("should handle large registry efficiently", async () => {
-        const request = mockRequest("https://example.com/test");
         const largeRegistry = {
           name: "large-registry",
           items: Array.from({ length: 50 }, (_, i) => ({
@@ -766,7 +699,7 @@ describe("RSS Generation Functions", () => {
         (readRegistry as any).mockResolvedValue(largeRegistry);
 
         const startTime = Date.now();
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
         const endTime = Date.now();
 
         expect(result).not.toBeNull();
@@ -776,11 +709,9 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should generate items for all registry entries", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue(mockRegistry);
 
-        const result = await generateRegistryRssFeed(request, mockRssOptions);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const items = extractRssItems(result!);
         expect(items).toHaveLength(mockRegistry.items.length);
@@ -789,8 +720,8 @@ describe("RSS Generation Functions", () => {
 
     describe("Integration with getConfigWithDefaults", () => {
       it("should merge user config with defaults", async () => {
-        const request = mockRequest("https://example.com/test");
         const userOptions: GenerateRssOptions = {
+          baseUrl: "https://example.com",
           rss: {
             title: "Custom Title",
           },
@@ -800,25 +731,26 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, userOptions);
+        const result = await generateRegistryRssFeed(userOptions);
 
         expect(result).toContain("Custom Title");
       });
 
-      it("should extract baseUrl from request", async () => {
-        const request = mockRequest("https://production.com/api/test");
+      it("should use provided baseUrl", async () => {
+        const options: GenerateRssOptions = {
+          baseUrl: "https://production.com",
+        };
 
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).toContain("https://production.com");
       });
 
-      it("should use provided baseUrl over extracted one", async () => {
-        const request = mockRequest("https://example.com/test");
+      it("should use provided baseUrl over default", async () => {
         const options: GenerateRssOptions = {
           baseUrl: "https://custom-domain.com",
         };
@@ -827,19 +759,17 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).toContain("https://custom-domain.com");
       });
 
       it("should set rss.link to baseUrl when not provided", async () => {
-        const request = mockRequest("https://example.com/test");
-
         (readRegistry as any).mockResolvedValue({
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request);
+        const result = await generateRegistryRssFeed(mockRssOptions);
 
         const linkContent = extractTagContent(result!, "link")[0];
         expect(linkContent).toBe("https://example.com");
@@ -848,7 +778,6 @@ describe("RSS Generation Functions", () => {
 
     describe("Correct passing of options to getPubDate", () => {
       it("should pass config to getPubDate for each item", async () => {
-        const request = mockRequest("https://example.com/test");
         const testDate = new Date("2024-03-15T10:30:00Z");
         const mockCommit = createMockGithubCommit(testDate);
         setupGithubFetchMock([mockCommit]);
@@ -858,7 +787,6 @@ describe("RSS Generation Functions", () => {
         });
 
         const result = await generateRegistryRssFeed(
-          request,
           mockGithubRssOptions
         );
 
@@ -868,12 +796,11 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should use correct pubDateStrategy from options", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           ...mockRssOptions,
           rss: {
             ...mockRssOptions.rss,
-            pubDateStatagy: "dateNow",
+            pubDateStrategy: "dateNow",
           },
         };
 
@@ -882,7 +809,7 @@ describe("RSS Generation Functions", () => {
         });
 
         const beforeCall = Date.now();
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
         const afterCall = Date.now();
 
         const items = extractRssItems(result!);
@@ -893,11 +820,10 @@ describe("RSS Generation Functions", () => {
       });
 
       it("should pass merged config to getPubDate", async () => {
-        const request = mockRequest("https://example.com/test");
         const options: GenerateRssOptions = {
           baseUrl: "https://custom.com",
           rss: {
-            pubDateStatagy: "dateNow",
+            pubDateStrategy: "dateNow",
           },
         };
 
@@ -905,7 +831,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(request, options);
+        const result = await generateRegistryRssFeed(options);
 
         expect(result).not.toBeNull();
         const items = extractRssItems(result!);

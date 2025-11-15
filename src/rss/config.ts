@@ -1,33 +1,29 @@
 import { GenerateRssOptions } from "./types";
 
 const defaultOptions: GenerateRssOptions = {
+  baseUrl: "",
   rss: {
     title: "Shadcn Registry",
     description:
       "Use the Wandry UI CLI to install custom components and templates from the community.",
     endpoint: "/rss.xml",
-    pubDateStatagy: "dateNow",
+    pubDateStrategy: "dateNow",
   },
   registry: {
     path: "r/registry.json",
   },
 };
 
-export function getConfigWithDefaults<T extends Request>(
-  request: T,
+export function getConfigWithDefaults(
   config?: GenerateRssOptions
 ): GenerateRssOptions {
-  const baseUrl = new URL(request.url).origin ?? "";
-
   return {
-    ...config,
     ...defaultOptions,
-
-    baseUrl: config?.baseUrl ?? baseUrl,
+    ...config,
     rss: {
       ...defaultOptions.rss,
       ...(config?.rss ?? {}),
-      link: config?.rss?.link ?? baseUrl,
+      link: config?.rss?.link ?? config?.baseUrl ?? "",
     },
     registry: {
       ...defaultOptions.registry,

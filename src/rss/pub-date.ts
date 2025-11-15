@@ -3,30 +3,31 @@ import fs from "fs/promises";
 import {
   GenerateRssOptions,
   GetGithubLastCommitOptions,
-  PubDateStatagy,
-  PubDateStatagyFn,
+  PubDateStrategy,
+  PubDateStrategyFn,
+  RegistryItem,
 } from "./types";
 import path from "path";
 
-const isDateNowStrategy = (strategy: PubDateStatagy): strategy is "dateNow" => {
+const isDateNowStrategy = (strategy: PubDateStrategy): strategy is "dateNow" => {
   return strategy === "dateNow";
 };
 
 const isGithubLastEditStrategy = (
-  strategy: PubDateStatagy
+  strategy: PubDateStrategy
 ): strategy is "githubLastEdit" => {
   return strategy === "githubLastEdit";
 };
 
 const isFileMtimeStrategy = (
-  strategy: PubDateStatagy
+  strategy: PubDateStrategy
 ): strategy is "fileMtime" => {
   return strategy === "fileMtime";
 };
 
 const isFunctionStrategy = (
-  strategy: PubDateStatagy
-): strategy is PubDateStatagyFn => {
+  strategy: PubDateStrategy
+): strategy is PubDateStrategyFn => {
   return typeof strategy === "function";
 };
 
@@ -77,47 +78,60 @@ async function getGithubLastEdit({
   return new Date(data[0].commit.committer.date);
 }
 
-const getFileMtime = async (component: any) => {
+const getFileMtime = async (item: RegistryItem): Promise<Date> => {
   const stat = await fs.stat(
-    path.resolve(process.cwd(), component.files[0].path)
+    path.resolve(process.cwd(), item.files[0].path)
   );
   return stat.mtime;
 };
 
-const getDateNow = async () => {
+const getDateNow = (): Date => {
   return new Date();
 };
 
 export const getPubDate = async (
-  component: any,
+  item: RegistryItem,
   options: GenerateRssOptions
-) => {
-  if (!options.rss?.pubDateStatagy) return getDateNow();
+): Promise<string> => {
+  if (!options.rss?.pubDateStrategy) {
+    return getDateNow().toUTCString();
+  }
 
-  if (isGithubLastEditStrategy(options.rss.pubDateStatagy) && options.github) {
+  const strategy = options.rss.pubDateStrategy;
+
+  if (isGithubLastEditStrategy(strategy) && options.github) {
     try {
-      return (
-        (await getGithubLastEdit({
-          ...options.github,
-          path: component.files[0].path,
-        })) ?? "Invalid Date"
-      );
+      const date = await getGithubLastEdit({
+        ...options.github,
+        path: item.files[0]?.path ?? "",
+      });
+      return date ? date.toUTCString() : getDateNow().toUTCString();
     } catch (error) {
-      return (await getDateNow()).toUTCString();
+      return getDateNow().toUTCString();
     }
   }
 
-  if (isDateNowStrategy(options.rss.pubDateStatagy)) {
-    return (await getDateNow()).toUTCString();
+  if (isDateNowStrategy(strategy)) {
+    return getDateNow().toUTCString();
   }
 
-  if (isFileMtimeStrategy(options.rss.pubDateStatagy)) {
-    return (await getFileMtime(component)).toUTCString();
+  if (isFileMtimeStrategy(strategy)) {
+    try {
+      const date = await getFileMtime(item);
+      return date.toUTCString();
+    } catch (error) {
+      return getDateNow().toUTCString();
+    }
   }
 
-  if (isFunctionStrategy(options.rss.pubDateStatagy)) {
-    return (await options.rss.pubDateStatagy(component)).toUTCString();
+  if (isFunctionStrategy(strategy)) {
+    try {
+      const date = await strategy(item);
+      return date.toUTCString();
+    } catch (error) {
+      return getDateNow().toUTCString();
+    }
   }
 
-  return "Invalid Date";
+  return getDateNow().toUTCString();
 };

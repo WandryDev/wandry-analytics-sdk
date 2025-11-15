@@ -18,7 +18,7 @@ export const mockRssOptions: GenerateRssOptions = {
     description: "Test registry description",
     link: "https://example.com",
     endpoint: "/rss.xml",
-    pubDateStatagy: "dateNow",
+    pubDateStrategy: "dateNow",
   },
   registry: {
     path: "r/registry.json",
@@ -29,7 +29,7 @@ export const mockGithubRssOptions: GenerateRssOptions = {
   ...mockRssOptions,
   rss: {
     ...mockRssOptions.rss,
-    pubDateStatagy: "githubLastEdit",
+    pubDateStrategy: "githubLastEdit",
   },
   github: {
     owner: "test-owner",
@@ -42,7 +42,7 @@ export const mockFileMtimeRssOptions: GenerateRssOptions = {
   ...mockRssOptions,
   rss: {
     ...mockRssOptions.rss,
-    pubDateStatagy: "fileMtime",
+    pubDateStrategy: "fileMtime",
   },
 };
 
@@ -54,6 +54,6 @@ export const mockCustomFunctionRssOptions: GenerateRssOptions = {
   ...mockRssOptions,
   rss: {
     ...mockRssOptions.rss,
-    pubDateStatagy: mockCustomPubDateFunction,
+    pubDateStrategy: mockCustomPubDateFunction,
   },
 };

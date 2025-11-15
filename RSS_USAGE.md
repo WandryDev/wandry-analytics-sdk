@@ -40,12 +40,15 @@ import { generateRegistryRssFeed } from "@wandry/analytics-sdk/rss";
 export async function middleware(request: NextRequest) {
   // Intercept requests to rss.xml
   if (request.nextUrl.pathname === "/rss.xml") {
-    const rssXml = await generateRegistryRssFeed(request, {
+    const baseUrl = new URL(request.url).origin;
+    
+    const rssXml = await generateRegistryRssFeed({
+      baseUrl,
       rss: {
         title: "My Shadcn Components",
         description: "Latest components from my shadcn registry",
         endpoint: "/rss.xml",
-        pubDateStatagy: "dateNow",
+        pubDateStrategy: "dateNow",
       },
       registry: {
         path: "r/registry.json",
@@ -83,12 +86,15 @@ import { generateRegistryRssFeed } from "@wandry/analytics-sdk/rss";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const rssXml = await generateRegistryRssFeed(request, {
+  const baseUrl = new URL(request.url).origin;
+  
+  const rssXml = await generateRegistryRssFeed({
+    baseUrl,
     rss: {
       title: "My Shadcn Registry",
       description: "Beautiful and reusable components for your projects",
       endpoint: "/rss.xml",
-      pubDateStatagy: "dateNow",
+      pubDateStrategy: "dateNow",
     },
     registry: {
       path: "r/registry.json",
@@ -118,12 +124,15 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const rssXml = await generateRegistryRssFeed(req as any, {
+  const baseUrl = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
+  
+  const rssXml = await generateRegistryRssFeed({
+    baseUrl,
     rss: {
       title: "My Component Library",
       description: "Latest components and updates",
       endpoint: "/api/rss.xml",
-      pubDateStatagy: "dateNow",
+      pubDateStrategy: "dateNow",
     },
   });
 
@@ -144,17 +153,17 @@ export default async function handler(
 
 ```typescript
 {
+  // Base URL of your site (required)
+  baseUrl: string;
+
   // RSS feed configuration
   rss?: {
     title?: string;              // Your feed title
     description?: string;         // Feed description
     link?: string;               // Your website URL (defaults to baseUrl)
     endpoint?: string;           // Path to RSS feed (defaults to '/rss.xml')
-    pubDateStatagy?: PubDateStatagy; // Publication date strategy
+    pubDateStrategy?: PubDateStatagy; // Publication date strategy
   },
-
-  // Base URL (automatically determined from request)
-  baseUrl?: string;
 
   // Registry configuration
   registry?: {
@@ -180,7 +189,7 @@ Uses current date and time. Suitable for testing and simple cases.
 ```typescript
 {
   rss: {
-    pubDateStatagy: "dateNow";
+    pubDateStrategy: "dateNow";
   }
 }
 ```
@@ -192,12 +201,14 @@ Uses the component file's last modified date. Requires file system access.
 ```typescript
 {
   rss: {
-    pubDateStatagy: "fileMtime";
+    pubDateStrategy: "fileMtime";
   }
 }
 ```
 
 **Note:** Component must have `files[0].path` property with correct file path.
+
+**⚠️ Important:** This strategy doesn't work on Vercel deployments because Vercel doesn't have access to files that are not in the bundle. For Vercel and similar serverless platforms, use `githubLastEdit` or `dateNow` strategies instead.
 
 ### 3. `githubLastEdit`
 
@@ -206,7 +217,7 @@ Fetches last commit date from GitHub API. Perfect for open-source projects.
 ```typescript
 {
   rss: {
-    pubDateStatagy: 'githubLastEdit'
+    pubDateStrategy: 'githubLastEdit'
   },
   github: {
     owner: 'your-username',
@@ -229,7 +240,7 @@ Create your own logic for determining publication date:
 ```typescript
 {
   rss: {
-    pubDateStatagy: async (item) => {
+    pubDateStrategy: async (item) => {
       // item contains component data from registry
       // For example, you can use createdAt from database
       const component = await db.components.findOne({ name: item.name });
@@ -244,7 +255,8 @@ Create your own logic for determining publication date:
 ### Minimal Configuration
 
 ```typescript
-const rssXml = await generateRegistryRssFeed(request);
+const baseUrl = new URL(request.url).origin;
+const rssXml = await generateRegistryRssFeed({ baseUrl });
 ```
 
 Uses default values:
@@ -252,19 +264,21 @@ Uses default values:
 - title: "Shadcn Registry"
 - endpoint: "/rss.xml"
 - registry path: "r/registry.json"
-- pubDateStatagy: "dateNow"
+- pubDateStrategy: "dateNow"
 
 ### Full Configuration with GitHub
 
 ```typescript
-const rssXml = await generateRegistryRssFeed(request, {
-  baseUrl: "https://my-registry.com",
+const baseUrl = new URL(request.url).origin;
+
+const rssXml = await generateRegistryRssFeed({
+  baseUrl,
   rss: {
     title: "Awesome UI Components",
     description: "Professional React components built with Tailwind CSS",
     link: "https://my-registry.com",
     endpoint: "/feed/rss.xml",
-    pubDateStatagy: "githubLastEdit",
+    pubDateStrategy: "githubLastEdit",
   },
   registry: {
     path: "api/registry.json",
@@ -285,7 +299,8 @@ const rssXml = await generateRegistryRssFeed(request, {
 export const revalidate = 3600; // Revalidate every hour
 
 export async function GET(request: NextRequest) {
-  const rssXml = await generateRegistryRssFeed(request);
+  const baseUrl = new URL(request.url).origin;
+  const rssXml = await generateRegistryRssFeed({ baseUrl });
 
   return new Response(rssXml, {
     headers: {
@@ -359,7 +374,8 @@ The function returns `null` in the following cases:
 It's recommended to handle null results:
 
 ```typescript
-const rssXml = await generateRegistryRssFeed(request, options);
+const baseUrl = new URL(request.url).origin;
+const rssXml = await generateRegistryRssFeed({ baseUrl });
 
 if (!rssXml) {
   return new Response('RSS feed not available', { 
@@ -418,7 +434,8 @@ github: {
 Log errors for debugging:
 
 ```typescript
-const rssXml = await generateRegistryRssFeed(request, options);
+const baseUrl = new URL(request.url).origin;
+const rssXml = await generateRegistryRssFeed({ baseUrl });
 
 if (!rssXml) {
   console.error('Failed to generate RSS feed');

@@ -1,17 +1,34 @@
-export type PubDateStatagyFn = (item: any) => Date | Promise<Date>;
+export type PubDateStrategyFn = (item: RegistryItem) => Date | Promise<Date>;
 
-export type PubDateStatagy =
+export type PubDateStrategy =
   | "githubLastEdit"
   | "fileMtime"
   | "dateNow"
-  | PubDateStatagyFn;
+  | PubDateStrategyFn;
+
+export interface RegistryItem {
+  name: string;
+  title: string;
+  description: string;
+  files: Array<{
+    path: string;
+    [key: string]: any;
+  }>;
+  [key: string]: any;
+}
+
+export interface Registry {
+  name?: string;
+  items: RegistryItem[];
+  [key: string]: any;
+}
 
 export type RssOptions = {
   title?: string;
   link?: string;
   description?: string;
   endpoint?: string;
-  pubDateStatagy?: PubDateStatagy;
+  pubDateStrategy?: PubDateStrategy;
 };
 
 export type GenerateRssOptions = {
@@ -20,7 +37,7 @@ export type GenerateRssOptions = {
    *
    * */
   rss?: RssOptions;
-  baseUrl?: string;
+  baseUrl: string;
   registry?: {
     path?: string;
   };

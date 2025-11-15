@@ -56,7 +56,6 @@ export async function generateRegistryRssFeed(
 
     return generateRssXml(items, config);
   } catch (error) {
-    console.error("Error generating RSS feed:", error);
     return null;
   }
 }

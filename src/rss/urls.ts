@@ -4,25 +4,33 @@ const isFileContains = (
   registryItem: RegistryItem,
   fileType: string
 ): boolean => {
+  console.log("registryItem.files", registryItem.files);
   return registryItem.files.some((file) => file.path.includes(fileType));
+};
+
+const isFileItemContainsType = (registryItem: RegistryItem, type: string) => {
+  return registryItem.files.some((file) => file.type === type);
 };
 
 export const determinateRegistyItemType = (
   registryItem: RegistryItem
 ): RegistryItemType => {
   if (
-    ["registry:ui", "registry:component"].includes(registryItem.type) ||
-    isFileContains(registryItem, "ui") ||
-    isFileContains(registryItem, "component")
+    ["registry:block", "registry:page"].includes(registryItem.type) ||
+    isFileContains(registryItem, "/blocks/") ||
+    isFileItemContainsType(registryItem, "registry:block") ||
+    isFileItemContainsType(registryItem, "registry:page")
   ) {
-    return "component";
+    return "block";
   }
 
   if (
-    ["registry:block", "registry:page"].includes(registryItem.type) ||
-    isFileContains(registryItem, "blocks")
+    ["registry:ui", "registry:component"].includes(registryItem.type) ||
+    isFileContains(registryItem, "/ui/") ||
+    isFileContains(registryItem, "/components/") ||
+    isFileItemContainsType(registryItem, "registry:component")
   ) {
-    return "block";
+    return "component";
   }
 
   return "unknown";

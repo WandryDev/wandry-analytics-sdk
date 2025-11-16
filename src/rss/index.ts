@@ -11,8 +11,8 @@ const generateRegistryItemXml = async (
 
   return `<item>
       <title>${item.title}</title>
-      <link>${options.baseUrl}/${item.name}</link>
-      <guid>${options.baseUrl}/${item.name}</guid>
+      <link>${options.baseUrl}/${options.componentsUrl}/${item.name}</link>
+      <guid>${options.baseUrl}/${options.componentsUrl}/${item.name}</guid>
       <description>${item.description}</description>
       <pubDate>${pubDate}</pubDate>
     </item>`;

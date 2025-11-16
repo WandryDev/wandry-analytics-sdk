@@ -41,9 +41,10 @@ export async function middleware(request: NextRequest) {
   // Intercept requests to rss.xml
   if (request.nextUrl.pathname === "/rss.xml") {
     const baseUrl = new URL(request.url).origin;
-    
+
     const rssXml = await generateRegistryRssFeed({
       baseUrl,
+      componentsPath: '/docs/components'
       rss: {
         title: "My Shadcn Components",
         description: "Latest components from my shadcn registry",
@@ -87,9 +88,10 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const baseUrl = new URL(request.url).origin;
-  
+
   const rssXml = await generateRegistryRssFeed({
     baseUrl,
+    componentsPath: '/docs/components'
     rss: {
       title: "My Shadcn Registry",
       description: "Beautiful and reusable components for your projects",
@@ -124,10 +126,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const baseUrl = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
-  
+  const baseUrl = `${req.headers["x-forwarded-proto"] || "http"}://${
+    req.headers.host
+  }`;
+
   const rssXml = await generateRegistryRssFeed({
     baseUrl,
+    componentsPath: '/docs/components'
     rss: {
       title: "My Component Library",
       description: "Latest components and updates",
@@ -273,6 +278,7 @@ const baseUrl = new URL(request.url).origin;
 
 const rssXml = await generateRegistryRssFeed({
   baseUrl,
+  componentsPath: '/docs/components'
   rss: {
     title: "Awesome UI Components",
     description: "Professional React components built with Tailwind CSS",
@@ -334,11 +340,13 @@ The module expects the following registry structure:
 ```
 
 Required fields for each component:
+
 - `name` - unique component name
 - `title` - display title
 - `description` - component description
 
 For `fileMtime` strategy requires:
+
 - `files[0].path` - path to component file
 
 ## Output
@@ -367,6 +375,7 @@ The function generates standard RSS 2.0 feed:
 ## Error Handling
 
 The function returns `null` in the following cases:
+
 - Registry not found or unavailable
 - Registry is empty (no components)
 - Error occurred during generation
@@ -378,9 +387,9 @@ const baseUrl = new URL(request.url).origin;
 const rssXml = await generateRegistryRssFeed({ baseUrl });
 
 if (!rssXml) {
-  return new Response('RSS feed not available', { 
+  return new Response("RSS feed not available", {
     status: 404,
-    headers: { 'Content-Type': 'text/plain' }
+    headers: { "Content-Type": "text/plain" },
   });
 }
 ```
@@ -438,7 +447,7 @@ const baseUrl = new URL(request.url).origin;
 const rssXml = await generateRegistryRssFeed({ baseUrl });
 
 if (!rssXml) {
-  console.error('Failed to generate RSS feed');
+  console.error("Failed to generate RSS feed");
   // Send to monitoring system (Sentry, LogRocket, etc.)
 }
 ```

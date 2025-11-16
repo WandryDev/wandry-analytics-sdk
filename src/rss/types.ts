@@ -38,6 +38,7 @@ export type GenerateRssOptions = {
    * */
   rss?: RssOptions;
   baseUrl: string;
+  componentsUrl: string;
   registry?: {
     path?: string;
   };

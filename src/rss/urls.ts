@@ -4,7 +4,6 @@ const isFileContains = (
   registryItem: RegistryItem,
   fileType: string
 ): boolean => {
-  console.log("registryItem.files", registryItem.files);
   return registryItem.files.some((file) => file.path.includes(fileType));
 };
 

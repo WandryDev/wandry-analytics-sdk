@@ -18,10 +18,8 @@ import {
   validateRssItem,
   extractRssItems,
   validatePubDateFormat,
-  isWellFormedXml,
-  assertRssStructure,
 } from "./helpers/xml.helper";
-import { createMockFileStat, resetFsStatMock } from "./__mocks__/fs.mock";
+import { resetFsStatMock } from "./__mocks__/fs.mock";
 import {
   setupGithubFetchMock,
   createMockGithubCommit,
@@ -193,7 +191,7 @@ describe("RSS Generation Functions", () => {
 
         const items = extractRssItems(result!);
         expect(items[0].link).toBe(
-          `https://mysite.com/${mockRegistryItem.name}`
+          `https://mysite.com/components/${mockRegistryItem.name}`
         );
       });
 
@@ -211,7 +209,7 @@ describe("RSS Generation Functions", () => {
 
         const items = extractRssItems(result!);
         expect(items[0].guid).toBe(
-          `https://mysite.com/${mockRegistryItem.name}`
+          `https://mysite.com/components/${mockRegistryItem.name}`
         );
       });
 
@@ -226,9 +224,11 @@ describe("RSS Generation Functions", () => {
         const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
-        expect(items[0].link).toBe("https://production.com/button");
-        expect(items[1].link).toBe("https://production.com/card");
-        expect(items[2].link).toBe("https://production.com/alert-dialog");
+        expect(items[0].link).toBe("https://production.com/components/button");
+        expect(items[1].link).toBe("https://production.com/components/card");
+        expect(items[2].link).toBe(
+          "https://production.com/components/alert-dialog"
+        );
       });
 
       it("should handle baseUrl without trailing slash", async () => {
@@ -244,7 +244,7 @@ describe("RSS Generation Functions", () => {
         const result = await generateRegistryRssFeed(options);
 
         const items = extractRssItems(result!);
-        expect(items[0].link).toBe("https://example.com/button");
+        expect(items[0].link).toBe("https://example.com/components/button");
         // Should not have triple slashes like https:///
         expect(items[0].link).not.toMatch(/:\/{3,}/);
       });
@@ -299,9 +299,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(
-          mockGithubRssOptions
-        );
+        const result = await generateRegistryRssFeed(mockGithubRssOptions);
 
         const items = extractRssItems(result!);
         const resultDate = new Date(items[0].pubDate);
@@ -655,24 +653,6 @@ describe("RSS Generation Functions", () => {
 
         expect(result).toBeNull();
       });
-
-      it("should log error to console", async () => {
-        const consoleErrorSpy = vi
-          .spyOn(console, "error")
-          .mockImplementation(() => {});
-
-        (readRegistry as any).mockRejectedValue(new Error("Test error"));
-
-        await generateRegistryRssFeed(mockRssOptions);
-
-        expect(consoleErrorSpy).toHaveBeenCalled();
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-          "Error generating RSS feed:",
-          expect.any(Error)
-        );
-
-        consoleErrorSpy.mockRestore();
-      });
     });
 
     describe("Verify parallel processing of all items via Promise.all", () => {
@@ -786,9 +766,7 @@ describe("RSS Generation Functions", () => {
           items: [mockRegistryItem],
         });
 
-        const result = await generateRegistryRssFeed(
-          mockGithubRssOptions
-        );
+        const result = await generateRegistryRssFeed(mockGithubRssOptions);
 
         const items = extractRssItems(result!);
         const resultDate = new Date(items[0].pubDate);

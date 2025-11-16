@@ -4,11 +4,13 @@ const isFileContains = (
   registryItem: RegistryItem,
   fileType: string
 ): boolean => {
-  return registryItem.files.some((file) => file.path.includes(fileType));
+  return (
+    registryItem.files?.some((file) => file.path.includes(fileType)) ?? false
+  );
 };
 
 const isFileItemContainsType = (registryItem: RegistryItem, type: string) => {
-  return registryItem.files.some((file) => file.type === type);
+  return registryItem.files?.some((file) => file.type === type) ?? false;
 };
 
 export const determinateRegistyItemType = (

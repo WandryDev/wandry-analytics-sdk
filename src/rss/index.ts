@@ -12,10 +12,10 @@ const generateRegistryItemXml = async (
   const path = getRegistryItemPath(item, options);
 
   return `<item>
-      <title>${item.title}</title>
+      <title>${item.title ?? ""}</title>
       <link>${options.baseUrl}/${path}/${item.name}</link>
       <guid>${options.baseUrl}/${path}/${item.name}</guid>
-      <description>${item.description}</description>
+      <description>${item.description ?? ""}</description>
       <pubDate>${pubDate}</pubDate>
     </item>`;
 };

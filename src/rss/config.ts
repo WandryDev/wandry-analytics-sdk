@@ -2,6 +2,8 @@ import { GenerateRssOptions } from "./types";
 
 const defaultOptions: GenerateRssOptions = {
   baseUrl: "",
+  componentsUrl: "components",
+  blocksUrl: "blocks",
   rss: {
     title: "Shadcn Registry",
     description:

@@ -2,17 +2,19 @@ import { getPubDate } from "./pub-date";
 import { GenerateRssOptions, Registry, RegistryItem } from "./types";
 import { getConfigWithDefaults } from "./config";
 import { readRegistry } from "../core/http";
+import { getRegistryItemPath } from "./urls";
 
 const generateRegistryItemXml = async (
   item: RegistryItem,
   options: GenerateRssOptions
 ) => {
   const pubDate = await getPubDate(item, options);
+  const path = getRegistryItemPath(item, options);
 
   return `<item>
       <title>${item.title}</title>
-      <link>${options.baseUrl}/${options.componentsUrl}/${item.name}</link>
-      <guid>${options.baseUrl}/${options.componentsUrl}/${item.name}</guid>
+      <link>${options.baseUrl}/${path}/${item.name}</link>
+      <guid>${options.baseUrl}/${path}/${item.name}</guid>
       <description>${item.description}</description>
       <pubDate>${pubDate}</pubDate>
     </item>`;

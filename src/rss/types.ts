@@ -1,3 +1,4 @@
+export type RegistryItemType = "component" | "block" | "unknown";
 export type PubDateStrategyFn = (item: RegistryItem) => Date | Promise<Date>;
 
 export type PubDateStrategy =
@@ -39,6 +40,7 @@ export type GenerateRssOptions = {
   rss?: RssOptions;
   baseUrl: string;
   componentsUrl: string;
+  blocksUrl: string;
   registry?: {
     path?: string;
   };

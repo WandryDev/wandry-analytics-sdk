@@ -40,7 +40,7 @@ export type GenerateRssOptions = {
   rss?: RssOptions;
   baseUrl?: string;
   componentsUrl?: string;
-  blocksUrl: string;
+  blocksUrl?: string;
   registry?: {
     path?: string;
   };

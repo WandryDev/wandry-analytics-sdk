@@ -1,55 +1,30 @@
-import { GenerateRssOptions, RegistryItem, RegistryItemType } from "./types";
-
-const isFileContains = (
-  registryItem: RegistryItem,
-  fileType: string
-): boolean => {
-  return (
-    registryItem.files?.some((file) => file.path.includes(fileType)) ?? false
-  );
-};
-
-const isFileItemContainsType = (registryItem: RegistryItem, type: string) => {
-  return registryItem.files?.some((file) => file.type === type) ?? false;
-};
-
-export const determinateRegistyItemType = (
-  registryItem: RegistryItem
-): RegistryItemType => {
-  if (
-    ["registry:block", "registry:page"].includes(registryItem.type) ||
-    isFileContains(registryItem, "/blocks/") ||
-    isFileItemContainsType(registryItem, "registry:block") ||
-    isFileItemContainsType(registryItem, "registry:page")
-  ) {
-    return "block";
-  }
-
-  if (
-    ["registry:ui", "registry:component"].includes(registryItem.type) ||
-    isFileContains(registryItem, "/ui/") ||
-    isFileContains(registryItem, "/components/") ||
-    isFileItemContainsType(registryItem, "registry:component")
-  ) {
-    return "component";
-  }
-
-  return "unknown";
-};
+import { GenerateRssOptions, RegistryItem } from "./types";
+import { determineRegistryItemType } from "./type-determiner";
 
 export const getRegistryItemPath = (
   registryItem: RegistryItem,
   config: GenerateRssOptions
 ) => {
-  const type = determinateRegistyItemType(registryItem);
+  const type = determineRegistryItemType(registryItem);
 
-  if (type === "component") {
-    return config.componentsUrl;
+  switch (type) {
+    case "block":
+      return config.blocksUrl ?? "";
+    case "component":
+      return config.componentsUrl ?? "";
+    case "lib":
+      return config.libsUrl ?? "";
+    case "hook":
+      return config.hooksUrl ?? "";
+    case "file":
+      return config.filesUrl ?? "";
+    case "style":
+      return config.stylesUrl ?? "";
+    case "theme":
+      return config.themesUrl ?? "";
+    case "item":
+      return config.itemsUrl ?? "";
+    default:
+      return "";
   }
-
-  if (type === "block") {
-    return config.blocksUrl;
-  }
-
-  return "";
 };

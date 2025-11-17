@@ -1,4 +1,13 @@
-export type RegistryItemType = "component" | "block" | "unknown";
+export type RegistryItemType =
+  | "block"
+  | "component"
+  | "lib"
+  | "hook"
+  | "file"
+  | "style"
+  | "theme"
+  | "item"
+  | "unknown";
 export type PubDateStrategyFn = (item: RegistryItem) => Date | Promise<Date>;
 
 export type PubDateStrategy =
@@ -41,6 +50,12 @@ export type GenerateRssOptions = {
   baseUrl?: string;
   componentsUrl?: string;
   blocksUrl?: string;
+  libsUrl?: string;
+  hooksUrl?: string;
+  filesUrl?: string;
+  stylesUrl?: string;
+  themesUrl?: string;
+  itemsUrl?: string;
   registry?: {
     path?: string;
   };

@@ -4,6 +4,12 @@ const defaultOptions: GenerateRssOptions = {
   baseUrl: "",
   componentsUrl: "components",
   blocksUrl: "blocks",
+  libsUrl: "libs",
+  hooksUrl: "hooks",
+  filesUrl: "files",
+  stylesUrl: "styles",
+  themesUrl: "themes",
+  itemsUrl: "items",
   rss: {
     title: "Shadcn Registry",
     description:

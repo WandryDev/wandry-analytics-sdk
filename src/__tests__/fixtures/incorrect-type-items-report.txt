@@ -1,5 +1,0 @@
-=== Report: Incorrect Type Determinations ===
-
-✅ All items have correct type determination!
-
-Total items checked: All registries processed successfully.

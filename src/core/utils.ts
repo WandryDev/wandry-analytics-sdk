@@ -37,5 +37,8 @@ export const isNodeFetchAgent = (request: EventRequest): boolean => {
 };
 
 export const getComponentNameFromUrl = (request: EventRequest): string => {
-  return new URL(request.url).pathname.replace("/r/", "").replace(".json", "");
+  return (
+    new URL(request.url).pathname.split("/").at(-1)?.replace(".json", "") ??
+    "unknown"
+  );
 };

@@ -15,3 +15,11 @@ export async function captureRegistryEvent<T extends Request>(
 
   return await sendEventToApi(request, token, type);
 }
+
+export async function capturePrivateRegistryEvent<T extends Request>(
+  request: T,
+  token: string,
+  type: EventType = "installed"
+): Promise<void> {
+  return await sendEventToApi(request, token, type);
+}

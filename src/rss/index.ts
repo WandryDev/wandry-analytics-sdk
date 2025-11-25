@@ -10,8 +10,11 @@ const generateRegistryItemXml = async (
   options: GenerateRssOptions
 ) => {
   const pubDate = await getPubDate(item, options);
-  const path = getRegistryItemPath(item, options);
-  const itemUrl = concatUrlParts(options.baseUrl, path, item.name);
+  const pathOrResolver = getRegistryItemPath(item, options);
+  const itemUrl =
+    typeof pathOrResolver === "function"
+      ? pathOrResolver(item.name)
+      : concatUrlParts(options.baseUrl, pathOrResolver, item.name);
 
   return `<item>
       <title>${item.title ?? ""}</title>

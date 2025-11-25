@@ -251,6 +251,45 @@ describe("RSS Integration Tests with Real Registries", () => {
     });
   });
 
+  describe("Custom URL resolvers", () => {
+    it("should use function-based URL resolver when provided", async () => {
+      const registryData = {
+        items: [
+          {
+            name: "custom-component",
+            title: "Custom Component",
+            type: "registry:component",
+            files: [],
+          },
+        ],
+      };
+
+      (readRegistry as any).mockResolvedValue(registryData);
+
+      const options: GenerateRssOptions = {
+        baseUrl: "https://example.com",
+        componentsUrl: (itemName) => `https://cdn.example.com/${itemName}`,
+        rss: {
+          title: "Custom Registry",
+          description: "Custom description",
+          link: "https://example.com",
+          endpoint: "/rss.xml",
+          pubDateStrategy: "dateNow",
+        },
+      };
+
+      const rssXml = await generateRegistryRssFeed(options);
+
+      expect(rssXml).not.toBeNull();
+      expect(rssXml).toContain(
+        "<link>https://cdn.example.com/custom-component</link>"
+      );
+      expect(rssXml).toContain(
+        "<guid>https://cdn.example.com/custom-component</guid>"
+      );
+    });
+  });
+
   describe("Type determination edge cases from real data", () => {
     it("should return valid type for all items", () => {
       registriesFixtures.forEach((registryFixture) => {

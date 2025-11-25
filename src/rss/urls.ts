@@ -1,10 +1,10 @@
-import { GenerateRssOptions, RegistryItem } from "./types";
+import { GenerateRssOptions, RegistryItem, UrlResolver } from "./types";
 import { determineRegistryItemType } from "./type-determiner";
 
 export const getRegistryItemPath = (
   registryItem: RegistryItem,
   config: GenerateRssOptions
-) => {
+): UrlResolver => {
   const type = determineRegistryItemType(registryItem);
 
   switch (type) {

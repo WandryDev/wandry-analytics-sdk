@@ -41,6 +41,8 @@ export type RssOptions = {
   pubDateStrategy?: PubDateStrategy;
 };
 
+export type UrlResolver = string | ((itemName: string) => string);
+
 export type GenerateRssOptions = {
   /**
    * RSS feed configuration
@@ -48,14 +50,14 @@ export type GenerateRssOptions = {
    * */
   rss?: RssOptions;
   baseUrl?: string;
-  componentsUrl?: string;
-  blocksUrl?: string;
-  libsUrl?: string;
-  hooksUrl?: string;
-  filesUrl?: string;
-  stylesUrl?: string;
-  themesUrl?: string;
-  itemsUrl?: string;
+  componentsUrl?: UrlResolver;
+  blocksUrl?: UrlResolver;
+  libsUrl?: UrlResolver;
+  hooksUrl?: UrlResolver;
+  filesUrl?: UrlResolver;
+  stylesUrl?: UrlResolver;
+  themesUrl?: UrlResolver;
+  itemsUrl?: UrlResolver;
   registry?: {
     path?: string;
   };

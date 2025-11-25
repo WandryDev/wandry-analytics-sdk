@@ -268,7 +268,7 @@ describe("RSS Integration Tests with Real Registries", () => {
 
       const options: GenerateRssOptions = {
         baseUrl: "https://example.com",
-        componentsUrl: (itemName) => `https://cdn.example.com/${itemName}`,
+        componentsUrl: (itemName) => `/components/${itemName}?target=block`,
         rss: {
           title: "Custom Registry",
           description: "Custom description",
@@ -282,10 +282,10 @@ describe("RSS Integration Tests with Real Registries", () => {
 
       expect(rssXml).not.toBeNull();
       expect(rssXml).toContain(
-        "<link>https://cdn.example.com/custom-component</link>"
+        "<link>https://example.com/components/custom-component?target=block</link>"
       );
       expect(rssXml).toContain(
-        "<guid>https://cdn.example.com/custom-component</guid>"
+        "<guid>https://example.com/components/custom-component?target=block</guid>"
       );
     });
   });

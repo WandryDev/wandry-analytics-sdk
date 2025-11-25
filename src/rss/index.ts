@@ -2,7 +2,7 @@ import { getPubDate } from "./pub-date";
 import { GenerateRssOptions, Registry, RegistryItem } from "./types";
 import { getConfigWithDefaults } from "./config";
 import { readRegistry } from "../core/http";
-import { getRegistryItemPath } from "./urls";
+import { getItemUrl } from "./urls";
 import { concatUrlParts } from "../utils/url-contact";
 
 const generateRegistryItemXml = async (
@@ -10,11 +10,7 @@ const generateRegistryItemXml = async (
   options: GenerateRssOptions
 ) => {
   const pubDate = await getPubDate(item, options);
-  const pathOrResolver = getRegistryItemPath(item, options);
-  const itemUrl =
-    typeof pathOrResolver === "function"
-      ? pathOrResolver(item.name)
-      : concatUrlParts(options.baseUrl, pathOrResolver, item.name);
+  const itemUrl = getItemUrl(item, options);
 
   return `<item>
       <title>${item.title ?? ""}</title>

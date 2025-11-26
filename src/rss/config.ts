@@ -20,6 +20,7 @@ const defaultOptions: GenerateRssOptions = {
   registry: {
     path: "r/registry.json",
   },
+  excludeItemTypes: ["registry:internal"],
 };
 
 export function getConfigWithDefaults(

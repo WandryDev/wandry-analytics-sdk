@@ -153,6 +153,7 @@ describe("RSS Integration Tests with Real Registries", () => {
             stylesUrl: "styles",
             themesUrl: "themes",
             itemsUrl: "items",
+            excludeItemTypes: [], // Include all items for integration test
             rss: {
               title: `${registryFixture.name} Registry`,
               description: registryFixture.description,
@@ -206,6 +207,7 @@ describe("RSS Integration Tests with Real Registries", () => {
             stylesUrl: "styles",
             themesUrl: "themes",
             itemsUrl: "items",
+            excludeItemTypes: [], // Include all items for integration test
             rss: {
               title: `${registryFixture.name} Registry`,
               description: registryFixture.description,

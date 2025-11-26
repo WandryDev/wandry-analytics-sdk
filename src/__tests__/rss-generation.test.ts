@@ -756,6 +756,222 @@ describe("RSS Generation Functions", () => {
       });
     });
 
+    describe("excludeItemTypes filtering", () => {
+      it("should exclude items with registry:internal type by default", async () => {
+        const registryWithInternalItems = {
+          name: "test-registry",
+          items: [
+            {
+              name: "button",
+              title: "Button Component",
+              description: "A button",
+              type: "registry:component",
+              files: [{ path: "button.tsx" }],
+            },
+            {
+              name: "internal-util",
+              title: "Internal Utility",
+              description: "An internal utility",
+              type: "registry:internal",
+              files: [{ path: "util.ts" }],
+            },
+            {
+              name: "card",
+              title: "Card Component",
+              description: "A card",
+              type: "registry:component",
+              files: [{ path: "card.tsx" }],
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithInternalItems);
+
+        const result = await generateRegistryRssFeed(mockRssOptions);
+
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(2);
+        expect(items.map((i) => i.title)).toEqual([
+          "Button Component",
+          "Card Component",
+        ]);
+      });
+
+      it("should include all items when excludeItemTypes is empty", async () => {
+        const registryWithInternalItems = {
+          name: "test-registry",
+          items: [
+            {
+              name: "button",
+              title: "Button Component",
+              description: "A button",
+              type: "registry:component",
+              files: [{ path: "button.tsx" }],
+            },
+            {
+              name: "internal-util",
+              title: "Internal Utility",
+              description: "An internal utility",
+              type: "registry:internal",
+              files: [{ path: "util.ts" }],
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithInternalItems);
+
+        const options: GenerateRssOptions = {
+          ...mockRssOptions,
+          excludeItemTypes: [],
+        };
+
+        const result = await generateRegistryRssFeed(options);
+
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(2);
+      });
+
+      it("should exclude multiple types when specified", async () => {
+        const registryWithVariousTypes = {
+          name: "test-registry",
+          items: [
+            {
+              name: "button",
+              title: "Button Component",
+              description: "A button",
+              type: "registry:component",
+              files: [{ path: "button.tsx" }],
+            },
+            {
+              name: "internal-util",
+              title: "Internal Utility",
+              description: "An internal utility",
+              type: "registry:internal",
+              files: [{ path: "util.ts" }],
+            },
+            {
+              name: "dark-theme",
+              title: "Dark Theme",
+              description: "A dark theme",
+              type: "registry:theme",
+              files: [{ path: "theme.css" }],
+            },
+            {
+              name: "card",
+              title: "Card Component",
+              description: "A card",
+              type: "registry:block",
+              files: [{ path: "card.tsx" }],
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithVariousTypes);
+
+        const options: GenerateRssOptions = {
+          ...mockRssOptions,
+          excludeItemTypes: ["registry:internal", "registry:theme"],
+        };
+
+        const result = await generateRegistryRssFeed(options);
+
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(2);
+        expect(items.map((i) => i.title)).toEqual([
+          "Button Component",
+          "Card Component",
+        ]);
+      });
+
+      it("should exclude items regardless of other item properties", async () => {
+        const registryWithInternalItems = {
+          name: "test-registry",
+          items: [
+            {
+              name: "internal-important",
+              title: "Very Important Internal",
+              description: "This should still be excluded",
+              type: "registry:internal",
+              files: [{ path: "important.ts" }],
+              priority: "high",
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithInternalItems);
+
+        const result = await generateRegistryRssFeed(mockRssOptions);
+
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(0);
+      });
+
+      it("should handle items without type property", async () => {
+        const registryWithMixedItems = {
+          name: "test-registry",
+          items: [
+            {
+              name: "button",
+              title: "Button Component",
+              description: "A button",
+              files: [{ path: "button.tsx" }],
+            },
+            {
+              name: "internal-util",
+              title: "Internal Utility",
+              description: "An internal utility",
+              type: "registry:internal",
+              files: [{ path: "util.ts" }],
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithMixedItems);
+
+        const result = await generateRegistryRssFeed(mockRssOptions);
+
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(1);
+        expect(items[0].title).toBe("Button Component");
+      });
+
+      it("should return null when all items are excluded", async () => {
+        const registryWithOnlyInternalItems = {
+          name: "test-registry",
+          items: [
+            {
+              name: "internal-util-1",
+              title: "Internal Utility 1",
+              description: "An internal utility",
+              type: "registry:internal",
+              files: [{ path: "util1.ts" }],
+            },
+            {
+              name: "internal-util-2",
+              title: "Internal Utility 2",
+              description: "Another internal utility",
+              type: "registry:internal",
+              files: [{ path: "util2.ts" }],
+            },
+          ],
+        };
+
+        (readRegistry as any).mockResolvedValue(registryWithOnlyInternalItems);
+
+        const result = await generateRegistryRssFeed(mockRssOptions);
+
+        // Result will still contain RSS structure but with empty items
+        expect(result).not.toBeNull();
+        const items = extractRssItems(result!);
+        expect(items).toHaveLength(0);
+      });
+    });
+
     describe("Correct passing of options to getPubDate", () => {
       it("should pass config to getPubDate for each item", async () => {
         const testDate = new Date("2024-03-15T10:30:00Z");

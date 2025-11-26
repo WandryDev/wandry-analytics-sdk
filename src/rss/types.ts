@@ -58,6 +58,7 @@ export type GenerateRssOptions = {
   stylesUrl?: UrlResolver;
   themesUrl?: UrlResolver;
   itemsUrl?: UrlResolver;
+  excludeItemTypes?: string[];
   registry?: {
     path?: string;
   };

@@ -262,6 +262,71 @@ describe("config.ts - Configuration testing", () => {
       });
     });
 
+    describe("excludeItemTypes configuration", () => {
+      it("should have registry:internal excluded by default", () => {
+        const result = getConfigWithDefaults();
+
+        expect(result.excludeItemTypes).toEqual(["registry:internal"]);
+      });
+
+      it("should allow overriding excludeItemTypes with custom array", () => {
+        const userConfig: GenerateRssOptions = {
+          baseUrl: "https://example.com",
+          excludeItemTypes: ["registry:block", "registry:lib"],
+        };
+
+        const result = getConfigWithDefaults(userConfig);
+
+        expect(result.excludeItemTypes).toEqual([
+          "registry:block",
+          "registry:lib",
+        ]);
+      });
+
+      it("should allow setting excludeItemTypes to empty array", () => {
+        const userConfig: GenerateRssOptions = {
+          baseUrl: "https://example.com",
+          excludeItemTypes: [],
+        };
+
+        const result = getConfigWithDefaults(userConfig);
+
+        expect(result.excludeItemTypes).toEqual([]);
+      });
+
+      it("should allow adding multiple types to exclude", () => {
+        const userConfig: GenerateRssOptions = {
+          baseUrl: "https://example.com",
+          excludeItemTypes: [
+            "registry:internal",
+            "registry:theme",
+            "registry:style",
+          ],
+        };
+
+        const result = getConfigWithDefaults(userConfig);
+
+        expect(result.excludeItemTypes).toEqual([
+          "registry:internal",
+          "registry:theme",
+          "registry:style",
+        ]);
+      });
+
+      it("should preserve excludeItemTypes when other options are provided", () => {
+        const userConfig: GenerateRssOptions = {
+          baseUrl: "https://example.com",
+          rss: {
+            title: "Custom Title",
+          },
+        };
+
+        const result = getConfigWithDefaults(userConfig);
+
+        expect(result.excludeItemTypes).toEqual(["registry:internal"]);
+      });
+    });
+
     describe("Priority of user settings over defaults", () => {
       it("should give priority to user rss.title over default", () => {
         const userConfig: GenerateRssOptions = {

@@ -9,6 +9,10 @@ const generateRegistryItemXml = async (
   item: RegistryItem,
   options: GenerateRssOptions
 ) => {
+  if (options.excludeItemTypes?.includes(item.type)) {
+    return "";
+  }
+
   const pubDate = await getPubDate(item, options);
   const itemUrl = getItemUrl(item, options);
 

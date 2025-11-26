@@ -41,7 +41,28 @@ export type RssOptions = {
   pubDateStrategy?: PubDateStrategy;
 };
 
-export type UrlResolver = string | ((itemName: string) => string);
+/**
+ * Function that resolves a URL from just the item name.
+ * @example
+ * const resolver: UrlResolverByName = (name) => `components/${name}`;
+ */
+export type UrlResolverByName = (itemName: string) => string;
+
+/**
+ * Function that resolves a URL from the full registry item.
+ * Useful when you need access to item properties like title, description, files, etc.
+ * @example
+ * const resolver: UrlResolverByItem = (item) => `${item.type}/${item.name}`;
+ */
+export type UrlResolverByItem = (item: RegistryItem) => string;
+
+/**
+ * URL resolver that can be:
+ * - A static string path
+ * - A function that receives the item name and returns a URL
+ * - A function that receives the full RegistryItem and returns a URL
+ */
+export type UrlResolver = string | UrlResolverByName | UrlResolverByItem;
 
 export type GenerateRssOptions = {
   /**
